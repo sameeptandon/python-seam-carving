@@ -113,7 +113,6 @@ def gradient_filter ( im ):
 	sobel_arr = generic_gradient_magnitude( im, derivative=sobel )
 	gradient = Image.new("F", im.size)
 	gradient.putdata( list( sobel_arr.flat ) )
-	
 	return gradient
 	
 def img_transpose(im):
@@ -229,7 +228,7 @@ def mark_seam (img, path):
 	@path: the seam
 	"""
 	pix = img.load()
-	
+	path = flatten(path)
 	print_fn( "Marking seam..." )
 	if img.mode == "RGB": 
 		for pixel in path:
@@ -412,7 +411,7 @@ def CAIS(input_img, resolution, output, mark):
 	while im_height > resolution[1]:
 		v = find_horizontal_seam(gradient_filter(grayscale_filter(input)))
 		if mark:
-			marked.append(u)
+			marked.append(v)
 		input = delete_horizontal_seam(input,v)
 		im_height = input.size[1]
 	while im_height < resolution[1]:
@@ -424,7 +423,18 @@ def CAIS(input_img, resolution, output, mark):
 	
 	if mark and marked != [ ]:
 		mark_seam(Image.open(input_img), marked).show( )
-	
+		
+def flatten(lst):
+	"""
+	Flattens a list of lists into one list
+	@lst: input lst to flatten
+	"""
+	for i in lst:
+		if type(i) == list:
+			for i in flatten(i):
+				yield i
+		else:
+			yield i
 
 def main():
 	from optparse import OptionParser
